@@ -85,6 +85,17 @@ public:
         benchmark::Counter::kIsRate | benchmark::Counter::kInvert);
   }
 
+
+  void BM_CalcBondsNoBox(benchmark::State &state) {
+    for (auto _ : state) {
+      CalcBondsNoBox(coords0, coords1,  nresults, results);
+    }
+    state.SetItemsProcessed(nresults * state.iterations());
+    state.counters["Per Result"] = benchmark::Counter(
+        nresults * state.iterations(),
+        benchmark::Counter::kIsRate | benchmark::Counter::kInvert);
+  }
+
   void BM_VanillaCalcBondsOrtho(benchmark::State &state) {
     for (auto _ : state) {
       VanillaCalcBonds(coords0, coords1, box, nresults, results);
@@ -182,11 +193,20 @@ BENCHMARK_TEMPLATE_DEFINE_F(CoordinatesDynamicMem, CalcBondsOrthoInBoxFloat,
                             float)
 (benchmark::State &state) { BM_CalcBondsOrtho(state); }
 
+BENCHMARK_TEMPLATE_DEFINE_F(CoordinatesDynamicMem, CalcBondsNoBoxFloat,
+                            float)
+(benchmark::State &state) { BM_CalcBondsNoBox(state); }
+
 BENCHMARK_TEMPLATE_DEFINE_F(CoordinatesDynamicMem, CalcBondsOrthoInBoxDouble,
                             double)
 (benchmark::State &state) { BM_CalcBondsOrtho(state); }
 
 BENCHMARK_REGISTER_F(CoordinatesDynamicMem, CalcBondsOrthoInBoxFloat)
+    ->Ranges({{16, 16 << 12}, {0, 0}, {0, 0}})
+    ->RangeMultiplier(4);
+
+
+BENCHMARK_REGISTER_F(CoordinatesDynamicMem, CalcBondsNoBoxFloat)
     ->Ranges({{16, 16 << 12}, {0, 0}, {0, 0}})
     ->RangeMultiplier(4);
 
